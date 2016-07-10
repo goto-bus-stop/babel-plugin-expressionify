@@ -1,0 +1,17 @@
+{
+  "name": "babel-plugin-expressionify",
+  "version": "0.0.0",
+  "description": "Turn most JavaScript into expressions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "babel-node test/index.js"
+  },
+  "keywords": [],
+  "author": "Renée Kooi <renee@kooi.me>",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.1",
+    "babel-preset-es2015": "^6.9.0"
+  }
+}
