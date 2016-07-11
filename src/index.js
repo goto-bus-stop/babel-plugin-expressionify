@@ -16,6 +16,10 @@ const makeForExpression = template(`
   )()
 `)
 
+const makeClassExpression = template(`
+  const NAME = CLASS
+`)
+
 export default function ({ types: t }) {
   const arrow = (params, body, args = []) => t.callExpression(
     t.arrowFunctionExpression(
@@ -80,8 +84,18 @@ export default function ({ types: t }) {
         )
         path.remove()
       },
-      BlockStatement (path) {
-        // path.replace(t.sequenceExpression(path.node.body.map(expressionify)))
+      ClassDeclaration (path) {
+        path.replaceWith(
+          makeClassExpression({
+            NAME: path.node.id,
+            CLASS: t.classExpression(
+              path.node.id,
+              path.node.superClass,
+              path.node.body,
+              path.node.decorators || []
+            )
+          })
+        )
       },
       ForStatement: { exit (path) {
         path.replaceWith(
