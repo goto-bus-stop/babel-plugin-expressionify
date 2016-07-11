@@ -1,14 +1,20 @@
-function expressionify (path) {
-  const transform = {
-    ForStatement () {
+import template from 'babel-template'
 
-    }
-  }[path.type]
-  if (transform) {
-    return transform(path)
-  }
-  return path
-}
+// Y Combinator for nameless recursion
+const recurse = template(`
+  fn =>
+    (f => f(f))(
+      f => fn(
+        x => f(f)(x)
+      )
+    )
+`)
+
+const makeForExpression = template(`
+  RECURSE(NEXT =>
+    () => TEST ? (UPDATE, BODY, NEXT()) : null
+  )()
+`)
 
 export default function ({ types: t }) {
   const arrow = (params, body, args = []) => t.callExpression(
@@ -78,27 +84,14 @@ export default function ({ types: t }) {
         // path.replace(t.sequenceExpression(path.node.body.map(expressionify)))
       },
       ForStatement: { exit (path) {
-        const id = path.scope.generateUidIdentifier('for')
         path.replaceWith(
-          t.expressionStatement(
-            t.callExpression(
-              t.functionExpression(
-                id,
-                [],
-                t.blockStatement([
-                  t.expressionStatement(t.conditionalExpression(path.node.test,
-                    t.sequenceExpression([
-                      path.node.update,
-                      arrow([], path.node.body),
-                      t.callExpression(id, [])
-                    ]),
-                    t.identifier('null')
-                  ))
-                ])
-              ),
-              []
-            )
-          )
+          makeForExpression({
+            RECURSE: recurse(),
+            NEXT: path.scope.generateUidIdentifier('next'),
+            TEST: path.node.test,
+            UPDATE: path.node.update,
+            BODY: arrow([], path.node.body)
+          })
         )
       } },
       Statement (path) {
