@@ -79,7 +79,7 @@ export default function ({ types: t }) {
         scopePath.replaceWith(
           t.callExpression(
             t.arrowFunctionExpression(declarations.map((decl) => decl.id), body),
-            declarations.map((decl) => decl.init)
+            declarations.map((decl) => decl.init || t.identifier('undefined'))
           )
         )
         path.remove()
